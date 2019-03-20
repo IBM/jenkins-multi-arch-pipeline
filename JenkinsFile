@@ -1,0 +1,63 @@
+pipeline {
+    agent none
+    stages {
+        stage('Checkout Code') {
+            parallel {
+                stage('Test On amd64') {
+                    agent {
+                        label "jenkins-latest-jenkins-slave-amd64"
+                    }
+                    steps {
+                        script{
+                            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'src'], [$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/Pensu/sampleflaskapp.git']]])
+                            appName = "default/flask-app"
+                            registryHost = "mycluster.icp:8500/"
+                            imageName = "${registryHost}${appName}:${env.BUILD_ID}"
+                            docker.withRegistry('https://mycluster.icp:8500/', 'docker'){
+                                sh "cp /root/.dockercfg /home/jenkins/.dockercfg"
+                                def pcImg = docker.build("mycluster.icp:8500/default/flask-app-amd64:${env.BUILD_ID}", "-f src/Dockerfile src/")
+                                pcImg.push()
+                            }
+                        }
+                    }
+                }
+                stage('Test On ppc64le') {
+                    agent {
+                        label "jenkins-latest-jenkins-slave-ppc64le"
+                    }
+                    steps {
+                        script{
+                            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'src'], [$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/Pensu/sampleflaskapp.git']]])
+                            appName = "default/flask-app"
+                            registryHost = "mycluster.icp:8500/"
+                            imageName = "${registryHost}${appName}:${env.BUILD_ID}"
+                            docker.withRegistry('https://mycluster.icp:8500/', 'docker'){
+                                sh "cp /root/.dockercfg /home/jenkins/.dockercfg"
+                                def pcImg = docker.build("mycluster.icp:8500/default/flask-app-ppc64le:${env.BUILD_ID}", "-f src/Dockerfile.ppc64le src/")
+                                pcImg.push()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage("Build Manifest and Push"){
+            agent{
+                label "jenkins-latest-jenkins-slave-amd64"
+            }
+            steps {
+                script{
+                    appName = "default/flask-app"
+                    registryHost = "mycluster.icp:8500/"
+                    imageName = "${registryHost}${appName}:${env.BUILD_ID}"
+                    imageNameArch = "${registryHost}${appName}-ARCH:${env.BUILD_ID}"
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker',
+usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){
+                       sh "manifest-tool --username ${USERNAME} --password ${PASSWORD} push from-args --platforms linux/amd64,linux/ppc64le --template ${imageNameArch} --target ${imageName}"
+                    }
+                        
+                }
+            }
+        }
+    }
+}

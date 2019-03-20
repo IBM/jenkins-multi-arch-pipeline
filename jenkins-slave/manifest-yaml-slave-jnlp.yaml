@@ -1,0 +1,12 @@
+image:  mycluster.icp:8500/default/jenkins-slave-jnlp:latest
+manifests:
+  -
+    image:  mycluster.icp:8500/default/slave-jnlp-ppc64le
+    platform:
+      architecture: ppc64le
+      os: linux
+  -
+    image:  mycluster.icp:8500/default/slave-jnlp-amd64
+    platform:
+      architecture: amd64
+      os: linux

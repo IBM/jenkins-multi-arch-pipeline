@@ -1,0 +1,12 @@
+image:  mycluster.icp:8500/default/jenkins-master
+manifests:
+  -
+    image:  mycluster.icp:8500/default/jenkins-ppc64le
+    platform:
+      architecture: ppc64le
+      os: linux
+  -
+    image:  mycluster.icp:8500/default/jenkins-amd64
+    platform:
+      architecture: amd64
+      os: linux

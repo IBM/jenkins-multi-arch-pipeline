@@ -1,0 +1,13 @@
+image:  mycluster.icp:8500/default/jenkins-slave:latest
+manifests:
+  -
+    image:  mycluster.icp:8500/default/jenkins-slave-ppc64le
+    platform:
+      architecture: ppc64le
+      os: linux
+  -
+    image:  mycluster.icp:8500/default/jenkins-slave-amd64
+    platform:
+      architecture: amd64
+      os: linux
+
