@@ -33,7 +33,7 @@ You can take the DooD approach in the following way:
   - Build jnlp slave for ppc64le: `docker build -t mycluster.icp:8500/default/slave-jnlp-amd64 .`
   - Push the image to ICP registry: `docker push mycluster.icp:8500/default/slave-jnlp-amd64`
   - cd ../jenkins-jnlp-slave-ppc64le
-  - Build jnlp slave for amd64:   `docker build -t mycluster.icp:8500/default/slave-jnlp-ppc64le .`
+  - Build jnlp slave for ppc64le:   `docker build -t mycluster.icp:8500/default/slave-jnlp-ppc64le -f Dockerfile.ppc64le .`
   - Push the image to ICP registry: `docker push mycluster.icp:8500/default/slave-jnlp-ppc64le`
   - Build manifest and push: `manifest-tool --username admin --password admin push from-spec manifest-yaml-slave-jnlp.yaml`
  
